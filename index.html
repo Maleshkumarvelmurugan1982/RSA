@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RSA Demo</title>
+</head>
+<body>
+
+<h2>RSA Encryption / Decryption</h2>
+
+<label>Prime p:</label><br>
+<input type="number" id="p"><br><br>
+
+<label>Prime q:</label><br>
+<input type="number" id="q"><br><br>
+
+<label>Public Key e:</label><br>
+<input type="number" id="e"><br><br>
+
+<label>Message:</label><br>
+<input type="number" id="message"><br><br>
+
+<button onclick="generateKeys()">Generate Keys</button>
+<button onclick="encrypt()">Encrypt</button>
+<button onclick="decrypt()">Decrypt</button>
+
+<p>n: <span id="n"></span></p>
+<p>φ(n): <span id="phi"></span></p>
+<p>Private key d: <span id="d"></span></p>
+<p>Encrypted: <span id="encrypted"></span></p>
+<p>Decrypted: <span id="decrypted"></span></p>
+
+<script>
+let n, phi, e, d;
+
+function modInverse(e, phi) {
+  for (let i = 1; i < phi; i++) {
+    if ((i * e) % phi === 1) return i;
+  }
+  return null;
+}
+
+function modPow(base, exp, mod) {
+  let result = 1;
+  base = base % mod;
+
+  while (exp > 0) {
+    if (exp % 2 === 1)
+      result = (result * base) % mod;
+
+    exp = Math.floor(exp / 2);
+    base = (base * base) % mod;
+  }
+  return result;
+}
+
+function generateKeys() {
+  const p = parseInt(document.getElementById("p").value);
+  const q = parseInt(document.getElementById("q").value);
+  e = parseInt(document.getElementById("e").value);
+
+  if (!p || !q || !e) {
+    alert("Enter all values");
+    return;
+  }
+
+  n = p * q;
+  phi = (p - 1) * (q - 1);
+
+  d = modInverse(e, phi);
+
+  if (!d) {
+    alert("Invalid e");
+    return;
+  }
+
+  document.getElementById("n").innerText = n;
+  document.getElementById("phi").innerText = phi;
+  document.getElementById("d").innerText = d;
+}
+
+function encrypt() {
+  const m = parseInt(document.getElementById("message").value);
+
+  if (!n || !e) {
+    alert("Generate keys first!");
+    return;
+  }
+
+  const c = modPow(m, e, n);
+  document.getElementById("encrypted").innerText = c;
+}
+
+function decrypt() {
+  const c = parseInt(document.getElementById("encrypted").innerText);
+
+  if (!d) {
+    alert("Generate keys first!");
+    return;
+  }
+
+  const m = modPow(c, d, n);
+  document.getElementById("decrypted").innerText = m;
+}
+</script>
+
+</body>
+</html>
